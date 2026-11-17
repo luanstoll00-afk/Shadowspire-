@@ -1,6 +1,4 @@
 
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,202 +6,503 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Shadowspire — Aventura</title>
 <style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: #0a0a12; color: #eee5cc;
-    font-family: "Courier New", monospace;
-  }
-  #game { max-width: 900px; margin: auto; padding: 12px; }
-  h1 { text-align: center; color: #c9a227; margin: 4px 0 12px; }
-  #stats { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px; }
-  #stats span, .panel {
-    background: #171722; border: 1px solid #514627; border-radius: 6px;
-  }
-  #stats span { padding: 6px 8px; }
-  .panel { padding: 10px; margin: 8px 0; }
-  button {
-    background: #2a2a3d; color: #eee5cc; border: 2px solid #6b5a2e;
-    padding: 8px 10px; margin: 3px; border-radius: 5px;
-    font: inherit; cursor: pointer;
-  }
-  button:hover { border-color: #c9a227; }
-  button:disabled { opacity: .45; cursor: not-allowed; }
-  #map {
-    display: block; width: 100%; height: auto; background: #183322;
-    border: 3px solid #6b5a2e; border-radius: 6px;
-  }
-  .center { text-align: center; }
-  .small { font-size: 12px; color: #c7c0aa; }
-  #log {
-    height: 100px; overflow-y: auto; background: #090910;
-    padding: 8px; font-size: 13px; line-height: 1.5;
-  }
-  #shop { display: none; }
-  #shopItems { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 6px; }
-  .item { background: #20202c; border: 1px solid #444; padding: 8px; border-radius: 5px; }
-  #controls {
-    display: grid; grid-template-columns: repeat(3,52px);
-    justify-content: center; gap: 4px; margin: 8px auto 0;
-  }
-  #controls button { height: 46px; margin: 0; font-size: 18px; touch-action: none; }
-  #nickInput {
-    background: #090910; color: #eee5cc; border: 1px solid #6b5a2e;
-    padding: 9px; border-radius: 5px; font: inherit;
-  }
-  @media (max-width: 500px) {
-    #game { padding: 7px; }
-    h1 { font-size: 20px; }
-    #stats span { font-size: 12px; }
-  }
+*{box-sizing:border-box}
+body{margin:0;background:#0a0a12;color:#eee5cc;font-family:monospace}
+#game{max-width:900px;margin:auto;padding:12px}
+h1{text-align:center;color:#c9a227}
+#stats{display:flex;flex-wrap:wrap;gap:6px}
+#stats span,.panel{background:#171722;border:1px solid #514627;border-radius:6px}
+#stats span{padding:6px}
+.panel{padding:10px;margin:8px 0}
+button{background:#2a2a3d;color:#eee5cc;border:2px solid #6b5a2e;padding:8px;margin:3px;border-radius:5px;font:inherit}
+button:disabled{opacity:.45}
+#map{width:100%;height:auto;border:3px solid #6b5a2e;border-radius:6px}
+.center{text-align:center}
+.small{font-size:12px;color:#c7c0aa}
+#log{height:90px;overflow:auto;background:#090910;padding:8px;font-size:13px}
+#shop{display:none}
+#shopItems{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px}
+#controls{display:grid;grid-template-columns:repeat(3,52px);justify-content:center;gap:4px}
+#controls button{height:46px;font-size:18px;touch-action:none}
+input{padding:8px;background:#090910;color:#eee5cc;border:1px solid #6b5a2e}
 </style>
 </head>
 <body>
 <div id="game">
-  <h1>⚔ SHADOWSPIRE ⚔</h1>
+<h1>⚔ SHADOWSPIRE ⚔</h1>
 
-  <div id="start" class="panel center">
-    <p>Escolha seu nome para começar:</p>
-    <input id="nickInput" maxlength="16" placeholder="Seu nome">
-    <button onclick="startGame()">Começar</button>
+<div id="start" class="panel center">
+  <p>Escolha seu nome para começar:</p>
+  <input id="nickInput" maxlength="16" placeholder="Seu nome">
+  <button onclick="startGame()">Começar</button>
+</div>
+
+<div id="gameUI" style="display:none">
+  <div id="stats">
+    <span>🧙 <b id="name"></b></span>
+    <span>⭐ Nível <b id="level"></b></span>
+    <span>❤️ HP <b id="hp"></b></span>
+    <span>⚔ Ataque <b id="atk"></b></span>
+    <span>✨ XP <b id="xp"></b></span>
+    <span>💰 <b id="gold"></b></span>
+    <span>🧪 Poções <b id="potions"></b></span>
   </div>
 
-  <div id="gameUI" style="display:none">
-    <div id="stats">
-      <span>🧙 <b id="name"></b></span>
-      <span>⭐ Nível <b id="level"></b></span>
-      <span>❤️ HP <b id="hp"></b></span>
-      <span>⚔ Ataque <b id="atk"></b></span>
-      <span>✨ XP <b id="xp"></b></span>
-      <span>💰 Moedas <b id="gold"></b></span>
-      <span>🧪 Poções <b id="potions"></b></span>
-    </div>
+  <div class="panel center">
+    <button onclick="changeScene('floresta')">🌲 Floresta</button>
+    <button onclick="changeScene('masmorra')">🏰 Masmorra</button>
+    <button onclick="changeScene('caverna')">🕳 Caverna</button>
+    <div id="sceneInfo" class="small"></div>
+  </div>
 
-    <div class="panel center">
-      <button onclick="changeScene('floresta')">🌲 Floresta Sombria</button>
-      <button onclick="changeScene('masmorra')">🏰 Masmorra</button>
-      <button onclick="changeScene('caverna')">🕳 Caverna Profunda</button>
-      <div id="sceneInfo" class="small"></div>
-    </div>
+  <canvas id="map" width="800" height="480"></canvas>
 
-    <canvas id="map" width="800" height="480"></canvas>
-
-    <div class="panel center">
-      <button onclick="attack()">⚔ Atacar (E)</button>
-      <button onclick="heal()">🧪 Poção (Q)</button>
-      <button onclick="toggleShop()">🛒 Loja</button>
-      <p class="small">Ande com WASD ou as setas. Aproxime-se dos monstros e ataque.</p>
-      <div id="controls">
-        <span></span><button data-key="ArrowUp">▲</button><span></span>
-        <button data-key="ArrowLeft">◀</button>
-        <button data-key="ArrowDown">▼</button>
-        <button data-key="ArrowRight">▶</button>
-      </div>
+  <div class="panel center">
+    <button onclick="attack()">⚔ Atacar (E)</button>
+    <button onclick="heal()">🧪 Poção (Q)</button>
+    <button onclick="toggleShop()">🛒 Loja</button>
+    <p class="small">Movimente-se com WASD ou as setas. Aproxime-se dos monstros para atacar.</p>
+    <div id="controls">
+      <span></span><button data-key="ArrowUp">▲</button><span></span>
+      <button data-key="ArrowLeft">◀</button>
+      <button data-key="ArrowDown">▼</button>
+      <button data-key="ArrowRight">▶</button>
     </div>
+  </div>
 
-    <div id="shop" class="panel">
-      <h3 class="center">🛒 Loja — estoque limitado</h3>
-      <div id="shopItems"></div>
-      <p class="center"><button onclick="toggleShop()">Fechar loja</button></p>
-    </div>
+  <div id="shop" class="panel">
+    <h3 class="center">🛒 Loja — estoque limitado</h3>
+    <div id="shopItems"></div>
+    <p class="center"><button onclick="toggleShop()">Fechar loja</button></p>
+  </div>
 
-    <div class="panel">
-      <b>Registro da aventura</b>
-      <div id="log"></div>
-    </div>
+  <div class="panel">
+    <b>Registro da aventura</b>
+    <div id="log"></div>
   </div>
 </div>
 
 <script>
-const canvas = document.getElementById("map");
-const ctx = canvas.getContext("2d");
-const keys = {};
+const canvas=document.getElementById("map");
+const ctx=canvas.getContext("2d");
+const keys={};
 
-const player = {
-  x: 400, y: 240, radius: 12, speed: 2.6,
-  hp: 100, maxHp: 100, atk: 12,
-  level: 1, xp: 0, gold: 50, potions: 2,
-  lastHit: 0
+const player={
+  x:400,y:240,r:12,speed:2.5,
+  hp:100,maxHp:100,atk:12,
+  level:1,xp:0,gold:50,potions:2,
+  name:"",lastHit:0
 };
 
-const scenes = {
-  floresta: {
-    name: "Floresta Sombria", background: "#23462b",
-    grid: "#2d5535", path: "#68583d", obstacle: "#123d26",
-    monster: "#b44242", difficulty: 1, minLevel: 1,
-    obstacles: [[80,80],[150,350],[250,120],[330,390],[500,90],
+const scenes={
+  floresta:{
+    name:"Floresta Sombria",bg:"#23462b",grid:"#2d5535",
+    path:"#68583d",obstacle:"#123d26",monster:"#b44242",
+    difficulty:1,
+    obstacles:[[80,80],[150,350],[250,120],[330,390],[500,90],
       [620,350],[720,120],[700,250],[100,250],[440,300],[570,200]]
   },
-  masmorra: {
-    name: "Masmorra", background: "#34343b",
-    grid: "#484850", path: "#625b50", obstacle: "#202027",
-    monster: "#a04fc0", difficulty: 1.5, minLevel: 2,
-    obstacles: [[100,100],[220,100],[600,100],[700,100],[100,350],
+  masmorra:{
+    name:"Masmorra",bg:"#34343b",grid:"#484850",
+    path:"#625b50",obstacle:"#202027",monster:"#a04fc0",
+    difficulty:1.5,
+    obstacles:[[100,100],[220,100],[600,100],[700,100],[100,350],
       [220,350],[600,350],[700,350],[400,110],[400,370]]
   },
-  caverna: {
-    name: "Caverna Profunda", background: "#242536",
-    grid: "#34364d", path: "#515168", obstacle: "#171927",
-    monster: "#d17a32", difficulty: 2.2, minLevel: 4,
-    obstacles: [[100,80],[180,180],[250,80],[330,370],[480,90],
+  caverna:{
+    name:"Caverna Profunda",bg:"#242536",grid:"#34364d",
+    path:"#515168",obstacle:"#171927",monster:"#d17a32",
+    difficulty:2.2,
+    obstacles:[[100,80],[180,180],[250,80],[330,370],[480,90],
       [550,180],[650,350],[720,100],[120,370],[420,250],[690,250]]
   }
 };
 
-const shopItems = [
-  {name:"Poção pequena", description:"Recupera 40 HP", price:20, level:1, stock:5, type:"potion"},
-  {name:"Poção grande", description:"Recupera 80 HP", price:50, level:3, stock:3, type:"bigPotion"},
-  {name:"Espada de ferro", description:"+5 de ataque", price:80, level:2, stock:3, type:"sword"},
-  {name:"Armadura reforçada", description:"+25 HP máximo", price:100, level:3, stock:2, type:"armor"},
-  {name:"Espada sombria", description:"+12 de ataque", price:220, level:5, stock:1, type:"sword2"}
+const items=[
+  {name:"Poção pequena",desc:"Recupera 40 HP",price:20,level:1,stock:5,type:"potion"},
+  {name:"Poção grande",desc:"Recupera 80 HP",price:50,level:3,stock:3,type:"bigPotion"},
+  {name:"Espada de ferro",desc:"+5 de ataque",price:80,level:2,stock:3,type:"sword"},
+  {name:"Armadura reforçada",desc:"+25 HP máximo",price:100,level:3,stock:2,type:"armor"},
+  {name:"Espada sombria",desc:"+12 de ataque",price:220,level:5,stock:1,type:"sword2"}
 ];
 
-let currentScene = "floresta";
-let monsters = [];
-let lastMoveTime = 0;
-let running = false;
-
-function startGame() {
-  const nick = document.getElementById("nickInput").value.trim();
-  if (nick.length < 2) {
-    alert("Digite um nome com pelo menos 2 caracteres.");
-    return;
-  }
-  player.name = nick.slice(0, 16);
-  document.getElementById("start").style.display = "none";
-  document.getElementById("gameUI").style.display = "block";
+let currentScene="floresta";
+let monsters=[];
+let running=false;
+function startGame(){
+  const nick=document.getElementById("nickInput").value.trim();
+  if(nick.length<2){alert("Digite um nome com pelo menos 2 caracteres.");return}
+  player.name=nick.slice(0,16);
+  document.getElementById("start").style.display="none";
+  document.getElementById("gameUI").style.display="block";
   makeScene();
-  say("Bem-vindo, " + player.name + "! Explore os cenários e enfrente os monstros.");
+  say("Bem-vindo, "+player.name+"! Explore os cenários e enfrente os monstros.");
   updateUI();
-  running = true;
+  running=true;
   requestAnimationFrame(gameLoop);
 }
 
-function say(message) {
-  const log = document.getElementById("log");
-  const line = document.createElement("div");
-  line.textContent = message;
-  log.prepend(line);
+function say(message){
+  const line=document.createElement("div");
+  line.textContent=message;
+  document.getElementById("log").prepend(line);
 }
 
-function xpNeeded() {
-  return 50 + (player.level - 1) * 25;
-}
+function xpNeeded(){return 50+(player.level-1)*25}
 
-function updateUI() {
-  document.getElementById("name").textContent = player.name || "";
-  document.getElementById("level").textContent = player.level;
-  document.getElementById("hp").textContent =
-    Math.max(0, Math.floor(player.hp)) + "/" + player.maxHp;
-  document.getElementById("atk").textContent = player.atk;
-  document.getElementById("xp").textContent = player.xp + "/" + xpNeeded();
-  document.getElementById("gold").textContent = player.gold;
-  document.getElementById("potions").textContent = player.potions;
-  document.getElementById("sceneInfo").textContent =
-    scenes[currentScene].name + " — dificuldade " + scenes[currentScene].difficulty;
+function updateUI(){
+  document.getElementById("name").textContent=player.name;
+  document.getElementById("level").textContent=player.level;
+  document.getElementById("hp").textContent=Math.max(0,Math.floor(player.hp))+"/"+player.maxHp;
+  document.getElementById("atk").textContent=player.atk;
+  document.getElementById("xp").textContent=player.xp+"/"+xpNeeded();
+  document.getElementById("gold").textContent=player.gold;
+  document.getElementById("potions").textContent=player.potions;
+  document.getElementById("sceneInfo").textContent=
+    scenes[currentScene].name+" — dificuldade "+scenes[currentScene].difficulty;
   draw();
 }
 
-function makeScene() {
-  monsters = [];
-  const count = currentScene === "caverna" ? 9 : currentScene
+function makeScene(){
+  monsters=[];
+  const s=scenes[currentScene];
+  const count=currentScene==="caverna"?9:currentScene==="masmorra"?8:7;
+  for(let i=0;i<count;i++)spawnMonster();
+}
+
+function spawnMonster(){
+  const s=scenes[currentScene];
+  let x,y,tries=0;
+  do{
+    x=25+Math.random()*750;
+    y=25+Math.random()*430;
+    tries++;
+  }while(tries<80&&(
+    Math.hypot(x-player.x,y-player.y)<110||
+    s.obstacles.some(o=>Math.hypot(x-o[0],y-o[1])<35)
+  ));
+  const diff=s.difficulty;
+  const hp=Math.floor((30+player.level*8)*diff);
+  monsters.push({
+    x,y,r:12,hp,maxHp:hp,
+    atk:Math.floor((5+player.level*2)*diff),
+    lastAttack:0
+  });
+}
+
+function draw(){
+  const s=scenes[currentScene];
+  ctx.fillStyle=s.bg;
+  ctx.fillRect(0,0,800,480);
+
+  ctx.strokeStyle=s.grid;
+  ctx.lineWidth=2;
+  for(let x=0;x<800;x+=40){
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,480);ctx.stroke();
+  }
+  for(let y=0;y<480;y+=40){
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(800,y);ctx.stroke();
+  }
+
+  ctx.fillStyle=s.path;
+  if(currentScene==="floresta"){
+    ctx.fillRect(0,210,800,55);
+    ctx.fillRect(365,0,55,480);
+  }else if(currentScene==="masmorra"){
+    ctx.fillRect(0,215,800,45);
+    ctx.fillRect(380,0,45,480);
+  }else{
+    ctx.fillRect(0,205,800,50);
+    ctx.fillRect(370,0,50,480);
+  }
+
+  s.obstacles.forEach(([x,y])=>{
+    ctx.fillStyle=s.obstacle;
+    if(currentScene==="floresta"){
+      ctx.fillRect(x-5,y,10,17);
+      ctx.beginPath();ctx.arc(x,y-5,17,0,Math.PI*2);ctx.fill();
+    }else{
+      ctx.fillRect(x-17,y-17,34,34);
+      ctx.strokeStyle="#777";ctx.strokeRect(x-17,y-17,34,34);
+    }
+  });
+
+  monsters.forEach(m=>{
+    ctx.fillStyle=s.monster;
+    ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#fff";
+    ctx.font="12px monospace";
+    ctx.fillText("👹",m.x-10,m.y+4);
+    ctx.fillStyle="#222";
+    ctx.fillRect(m.x-13,m.y-20,26,4);
+    ctx.fillStyle="#e33";
+    ctx.fillRect(m.x-13,m.y-20,26*Math.max(0,m.hp/m.maxHp),4);
+  });
+
+  ctx.fillStyle="#4ca5e8";
+  ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();
+  ctx.font="14px monospace";
+  ctx.fillText("🧙",player.x-10,player.y+5);
+}
+
+function blocked(x,y){
+  return scenes[currentScene].obstacles.some(o=>
+    Math.hypot(x-o[0],y-o[1])<25
+  );
+}
+
+function gameLoop(time){
+  if(!running)return;
+  const step=2.5;
+  let dx=0,dy=0;
+  if(keys.ArrowUp||keys.w||keys.W)dy--;
+  if(keys.ArrowDown||keys.s||keys.S)dy++;
+  if(keys.ArrowLeft||keys.a||keys.A)dx--;
+  if(keys.ArrowRight||keys.d||keys.D)dx++;
+  if(dx&&dy){dx*=0.707;dy*=0.707}
+
+  const nx=Math.max(14,Math.min(786,player.x+dx*step));
+  const ny=Math.max(14,Math.min(466,player.y+dy*step));
+  if(!blocked(nx,player.y))player.x=nx;
+  if(!blocked(player.x,ny))player.y=ny;
+
+  monsters.forEach(m=>{
+    const d=Math.hypot(player.x-m.x,player.y-m.y);
+    if(d<160&&d>25){
+      m.x+=(player.x-m.x)/d*0.45;
+      m.y+=(player.y-m.y)/d*0.45;
+    }
+    if(d<27&&time-m.lastAttack>1100){
+      m.lastAttack=time;
+      player.hp-=m.atk;
+      say("Monstro te acertou: -"+m.atk+" HP.");
+      if(player.hp<=0)respawn();
+    }
+  });
+
+  updateUI();
+  requestAnimationFrame(gameLoop);
+}
+function changeScene(sceneKey){
+  if(!scenes[sceneKey])return;
+  currentScene=sceneKey;
+  player.x=400;
+  player.y=240;
+  makeScene();
+  updateUI();
+  say("Você entrou em: "+scenes[currentScene].name+".");
+}
+
+function attack(){
+  let target=null;
+  let closest=55;
+
+  monsters.forEach(m=>{
+    const distance=Math.hypot(player.x-m.x,player.y-m.y);
+    if(distance<closest){
+      closest=distance;
+      target=m;
+    }
+  });
+
+  if(!target){
+    say("Não há monstros perto o suficiente para atacar.");
+    return;
+  }
+
+  target.hp-=player.atk;
+  say("Você acertou o monstro e causou "+player.atk+" de dano.");
+
+  if(target.hp<=0){
+    monsters.splice(monsters.indexOf(target),1);
+    const earnedXp=15+Math.floor(Math.random()*16);
+    const earnedGold=8+Math.floor(Math.random()*8);
+    player.xp+=earnedXp;
+    player.gold+=earnedGold;
+    say("Monstro derrotado! Ganhou "+earnedXp+" XP e "+earnedGold+" moedas.");
+
+    while(player.xp>=xpNeeded()){
+      player.xp-=xpNeeded();
+      player.level++;
+      player.maxHp+=10;
+      player.hp=player.maxHp;
+      player.atk+=2;
+      say("Subiu para o nível "+player.level+"! HP máximo +10 e ataque +2.");
+    }
+
+    if(monsters.length<5)spawnMonster();
+  }
+
+  updateUI();
+}
+
+function heal(){
+  if(player.potions<=0){
+    say("Você não tem poções.");
+    return;
+  }
+  if(player.hp>=player.maxHp){
+    say("Sua vida já está cheia.");
+    return;
+  }
+
+  player.potions--;
+  player.hp=Math.min(player.maxHp,player.hp+40);
+  say("Você usou uma poção e recuperou 40 HP.");
+  updateUI();
+}
+
+function respawn(){
+  player.hp=1;
+  player.gold=Math.max(0,player.gold-Math.floor(player.gold*0.2));
+  player.x=400;
+  player.y=240;
+  say("Você foi derrotado! Voltou com 1 HP e perdeu 20% das moedas.");
+  updateUI();
+}
+
+function toggleShop(){
+  const shop=document.getElementById("shop");
+  const isOpen=shop.style.display==="block";
+  shop.style.display=isOpen?"none":"block";
+  if(!isOpen)renderShop();
+}
+
+function renderShop(){
+  const container=document.getElementById("shopItems");
+  container.innerHTML="";
+
+  items.forEach((item,index)=>{
+    const card=document.createElement("div");
+    card.className="item";
+
+    const title=document.createElement("b");
+    title.textContent=item.name;
+    card.appendChild(title);
+
+    const info=document.createElement("p");
+    info.textContent=item.desc+" — "+item.price+" moedas";
+    card.appendChild(info);
+
+    const requirement=document.createElement("p");
+    requirement.textContent="Nível mínimo: "+item.level+" | Estoque: "+item.stock;
+    card.appendChild(requirement);
+
+    const buy=document.createElement("button");
+    buy.textContent="Comprar";
+    buy.disabled=player.level<item.level||item.stock<=0||player.gold<item.price;
+    buy.onclick=()=>buyItem(index);
+    card.appendChild(buy);
+
+    container.appendChild(card);
+  });
+}
+
+function buyItem(index){
+  const item=items[index];
+
+  if(player.level<item.level){
+    say("Você precisa estar no nível "+item.level+" para comprar "+item.name+".");
+    return;
+  }
+  if(item.stock<=0){
+    say("Esse item acabou no estoque.");
+    return;
+  }
+  if(player.gold<item.price){
+    say("Você não tem moedas suficientes.");
+    return;
+  }
+
+  player.gold-=item.price;
+  item.stock--;
+
+  if(item.type==="potion"){
+    player.potions++;
+  }else if(item.type==="bigPotion"){
+    player.potions++;
+  }else if(item.type==="sword"){
+    player.atk+=5;
+  }else if(item.type==="sword2"){
+    player.atk+=12;
+  }else if(item.type==="armor"){
+    player.maxHp+=25;
+    player.hp+=25;
+  }
+
+  say("Comprou "+item.name+".");
+  updateUI();
+  renderShop();
+}
+function buyItem(index){
+  const item=items[index];
+
+  if(player.level<item.level){
+    say("Você precisa do nível "+item.level+" para comprar esse item.");
+    return;
+  }
+  if(item.stock<=0||player.gold<item.price)return;
+
+  player.gold-=item.price;
+  item.stock--;
+
+  if(item.type==="potion"||item.type==="bigPotion"){
+    player.potions++;
+  }else if(item.type==="sword"){
+    player.atk+=5;
+  }else if(item.type==="sword2"){
+    player.atk+=12;
+  }else if(item.type==="armor"){
+    player.maxHp+=25;
+    player.hp+=25;
+  }
+
+  say("Comprou "+item.name+".");
+  updateUI();
+  renderShop();
+}
+
+document.addEventListener("keydown",event=>{
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(event.key)){
+    event.preventDefault();
+  }
+
+  keys[event.key]=true;
+
+  if(event.repeat)return;
+  if(event.key.toLowerCase()==="e")attack();
+  if(event.key.toLowerCase()==="q")heal();
+});
+
+document.addEventListener("keyup",event=>{
+  keys[event.key]=false;
+});
+
+document.querySelectorAll("#controls button[data-key]").forEach(button=>{
+  const key=button.dataset.key;
+
+  button.addEventListener("pointerdown",event=>{
+    event.preventDefault();
+    keys[key]=true;
+    button.setPointerCapture(event.pointerId);
+  });
+
+  const release=()=>{
+    keys[key]=false;
+  };
+
+  button.addEventListener("pointerup",release);
+  button.addEventListener("pointercancel",release);
+  button.addEventListener("lostpointercapture",release);
+});
+
+document.getElementById("nickInput").addEventListener("keydown",event=>{
+  if(event.key==="Enter")startGame();
+});
+
+updateUI();
+</script>
+</body>
+</html>
 ```
+
